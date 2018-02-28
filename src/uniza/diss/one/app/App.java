@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gui;
+package uniza.diss.one.app;
 
-import org.jfree.chart.JFreeChart;
+import uniza.diss.one.utils.AppOutput;
 
 /**
  *
@@ -18,6 +18,11 @@ public class App extends javax.swing.JFrame {
      */
     public App() {
         initComponents();
+        initInstances();
+    }
+    
+    private void initInstances() {
+        AppOutput.setApp(this);
     }
 
     /**
@@ -59,7 +64,7 @@ public class App extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main2(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -87,9 +92,7 @@ public class App extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new App().setVisible(true);
-                
-                
-                
+
             }
         });
     }
