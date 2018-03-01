@@ -15,7 +15,7 @@ import uniza.diss.one.impl.MonteCarloSecondVariant;
  */
 public class test {
     
-    public static void main(final String[] args) {
+    public static void main2(final String[] args) {
         
         MonteCarloFirstVariant v1 = new MonteCarloFirstVariant();
         System.out.println(v1.runMonteCarlo(1000000, 3));

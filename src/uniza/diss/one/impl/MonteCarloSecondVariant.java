@@ -13,10 +13,13 @@ import uniza.diss.one.base.MonteCarlo;
  * @author mariokemen
  */
 public class MonteCarloSecondVariant extends MonteCarlo {
+
+    private double[] semiResults;
     
     @Override
     public double runMonteCarlo(int countReplications, int countDoors) {
 
+        this.semiResults = new double[countReplications];
         Random rnd1 = new Random();
         Random rnd2 = new Random();
         Random rnd3 = new Random();
@@ -35,6 +38,9 @@ public class MonteCarloSecondVariant extends MonteCarlo {
             pick = getChangeMyMind(pick, pickModerator, rnd2, countDoors);
             if(pick == winDoor) {
                 countWins++;
+            }
+            if (countWins != 0) {
+                semiResults[i] = (double) countWins / (i + 1);
             }
         }
 
@@ -63,5 +69,9 @@ public class MonteCarloSecondVariant extends MonteCarlo {
             }
         }
         return door;
+    }
+    
+    public double[] getSemiResults() {
+        return this.semiResults;
     }
 }

@@ -5,6 +5,19 @@
  */
 package uniza.diss.one.app;
 
+import java.awt.Color;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import uniza.diss.one.impl.MonteCarloFirstVariant;
+import uniza.diss.one.impl.MonteCarloSecondVariant;
 import uniza.diss.one.utils.AppOutput;
 
 /**
@@ -13,6 +26,10 @@ import uniza.diss.one.utils.AppOutput;
  */
 public class App extends javax.swing.JFrame {
 
+    private XYSeriesCollection dataseries;
+    private int countReplications;
+    private int countDoors;
+
     /**
      * Creates new form App
      */
@@ -20,9 +37,88 @@ public class App extends javax.swing.JFrame {
         initComponents();
         initInstances();
     }
-    
+
     private void initInstances() {
         AppOutput.setApp(this);
+        this.dataseries = new XYSeriesCollection();
+    }
+
+    private JFreeChart createChart(final XYDataset dataset) {
+
+        // create the chart...
+        final JFreeChart chart = ChartFactory.createXYLineChart(
+                "Televízna relácia", // chart title
+                "Počet replikácií", // x axis label
+                "Pravdepodobnosť výhry", // y axis label
+                dataset, // data
+                PlotOrientation.VERTICAL,
+                true, // include legend
+                true, // tooltips
+                false // urls
+        );
+
+        // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
+        chart.setBackgroundPaint(Color.white);
+
+//        final StandardLegend legend = (StandardLegend) chart.getLegend();
+        //      legend.setDisplaySeriesShapes(true);
+        // get a reference to the plot for further customisation...
+        final XYPlot plot = chart.getXYPlot();
+        plot.setBackgroundPaint(Color.lightGray);
+        //    plot.setAxisOffset(new Spacer(Spacer.ABSOLUTE, 5.0, 5.0, 5.0, 5.0));
+        plot.setDomainGridlinePaint(Color.white);
+        plot.setRangeGridlinePaint(Color.white);
+
+        final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesShapesVisible(0, false);
+        renderer.setSeriesShapesVisible(1, false);
+        plot.setRenderer(renderer);
+
+        // change the auto tick unit selection to integer units only...
+//        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+//        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        // OPTIONAL CUSTOMISATION COMPLETED.
+        return chart;
+
+    }
+
+    private XYSeries createSeries1() {
+
+        int i;
+        final XYSeries series = new XYSeries("Prvá varianta");
+
+        MonteCarloFirstVariant variant1 = new MonteCarloFirstVariant();
+        variant1.runMonteCarlo(this.countReplications, this.countDoors);
+        double[] data = variant1.getSemiResults();
+        for (i = 0; i < data.length; i++) {
+            series.add(i, data[i]);
+        }
+        return series;
+
+    }
+
+    private XYSeries createSeries2() {
+
+        int i;
+        final XYSeries series = new XYSeries("Druhá varianta");
+
+        MonteCarloSecondVariant variant2 = new MonteCarloSecondVariant();
+        variant2.runMonteCarlo(this.countReplications, this.countDoors);
+        double[] data = variant2.getSemiResults();
+        for (i = 0; i < data.length; i++) {
+            series.add(i, data[i]);
+        }
+        return series;
+
+    }
+
+    private void setInputValues() {
+        try {
+            this.countReplications = Integer.parseInt(jTextFieldCountReplications.getText());
+            this.countDoors = Integer.parseInt(jTextFieldCountDoors.getText());
+        } catch (NumberFormatException nfe) {
+            System.out.println("Chyba na vstupe");
+        }
     }
 
     /**
@@ -34,12 +130,54 @@ public class App extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        mainChartPanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jTextFieldCountReplications = new javax.swing.JTextField();
+        jTextFieldCountDoors = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        JButtonVariant1 = new javax.swing.JButton();
+        jButtonVariant2 = new javax.swing.JButton();
+        jButtonAllVariants = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(1200, 600));
 
-        jPanel1.setBackground(new java.awt.Color(102, 102, 102));
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        mainChartPanel.setBackground(new java.awt.Color(102, 102, 102));
+        mainChartPanel.setLayout(new java.awt.BorderLayout());
+
+        jLabel1.setText("Počet replikácií");
+
+        jTextFieldCountReplications.setText("1000000");
+        jTextFieldCountReplications.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldCountReplicationsActionPerformed(evt);
+            }
+        });
+
+        jTextFieldCountDoors.setText("3");
+
+        jLabel2.setText("Počet dverí");
+
+        JButtonVariant1.setText("Štart varianty 1");
+        JButtonVariant1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                JButtonVariant1ActionPerformed(evt);
+            }
+        });
+
+        jButtonVariant2.setText("Štart varianty 2");
+        jButtonVariant2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonVariant2ActionPerformed(evt);
+            }
+        });
+
+        jButtonAllVariants.setText("Štart oboch variánt");
+        jButtonAllVariants.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAllVariantsActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -47,24 +185,102 @@ public class App extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(mainChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 822, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jTextFieldCountDoors)
+                            .addComponent(jTextFieldCountReplications, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(JButtonVariant1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonVariant2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonAllVariants)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(148, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jTextFieldCountReplications, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextFieldCountDoors, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(JButtonVariant1)
+                    .addComponent(jButtonVariant2)
+                    .addComponent(jButtonAllVariants))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 459, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jTextFieldCountReplicationsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldCountReplicationsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldCountReplicationsActionPerformed
+
+    private void JButtonVariant1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JButtonVariant1ActionPerformed
+
+        setInputValues();
+
+        this.dataseries.removeAllSeries();
+        this.dataseries.addSeries(createSeries1());
+
+        final XYDataset dataset = this.dataseries;
+        final JFreeChart chart = createChart(dataset);
+        final ChartPanel chartPanel = new ChartPanel(chart);
+        mainChartPanel.removeAll();
+        mainChartPanel.add(chartPanel);
+        mainChartPanel.revalidate();
+    }//GEN-LAST:event_JButtonVariant1ActionPerformed
+
+    private void jButtonVariant2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonVariant2ActionPerformed
+
+        setInputValues();
+
+        this.dataseries.removeAllSeries();
+        this.dataseries.addSeries(createSeries2());
+
+        final XYDataset dataset = this.dataseries;
+        final JFreeChart chart = createChart(dataset);
+        final ChartPanel chartPanel = new ChartPanel(chart);
+        mainChartPanel.removeAll();
+        mainChartPanel.add(chartPanel);
+        mainChartPanel.revalidate();
+    }//GEN-LAST:event_jButtonVariant2ActionPerformed
+
+    private void jButtonAllVariantsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAllVariantsActionPerformed
+
+        setInputValues();
+
+        this.dataseries.removeAllSeries();
+        this.dataseries.addSeries(createSeries1());
+        this.dataseries.addSeries(createSeries2());
+
+        final XYDataset dataset = this.dataseries;
+        final JFreeChart chart = createChart(dataset);
+        final ChartPanel chartPanel = new ChartPanel(chart);
+        mainChartPanel.removeAll();
+        mainChartPanel.add(chartPanel);
+        mainChartPanel.revalidate();
+
+    }//GEN-LAST:event_jButtonAllVariantsActionPerformed
+
     /**
      * @param args the command line arguments
      */
-    public static void main2(String args[]) {
+    public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -97,6 +313,13 @@ public class App extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JButton JButtonVariant1;
+    private javax.swing.JButton jButtonAllVariants;
+    private javax.swing.JButton jButtonVariant2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JTextField jTextFieldCountDoors;
+    private javax.swing.JTextField jTextFieldCountReplications;
+    private javax.swing.JPanel mainChartPanel;
     // End of variables declaration//GEN-END:variables
 }
