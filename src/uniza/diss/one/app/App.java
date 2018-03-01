@@ -16,8 +16,8 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import uniza.diss.one.impl.MonteCarloFirstVariant;
-import uniza.diss.one.impl.MonteCarloSecondVariant;
+import uniza.diss.one.impl.MonteCarloFirstStrategy;
+import uniza.diss.one.impl.MonteCarloSecondStrategy;
 import uniza.diss.one.utils.AppOutput;
 
 /**
@@ -29,6 +29,9 @@ public class App extends javax.swing.JFrame {
     private XYSeriesCollection dataseries;
     private int countReplications;
     private int countDoors;
+
+    private XYSeries series1;
+    private XYSeries series2;
 
     /**
      * Creates new form App
@@ -87,12 +90,12 @@ public class App extends javax.swing.JFrame {
         int i;
         final XYSeries series = new XYSeries("Prvá varianta");
 
-        MonteCarloFirstVariant variant1 = new MonteCarloFirstVariant();
-        variant1.runMonteCarlo(this.countReplications, this.countDoors);
-        double[] data = variant1.getSemiResults();
-        for (i = 0; i < data.length; i++) {
-            series.add(i, data[i]);
-        }
+//        MonteCarloFirstVariant variant1 = new MonteCarloFirstVariant();
+//        variant1.runMonteCarlo(this.countReplications, this.countDoors);
+//        double[] data = variant1.getSemiResults();
+//        for (i = 0; i < data.length; i++) {
+//            series.add(i, data[i]);
+//        }
         return series;
 
     }
@@ -102,7 +105,7 @@ public class App extends javax.swing.JFrame {
         int i;
         final XYSeries series = new XYSeries("Druhá varianta");
 
-        MonteCarloSecondVariant variant2 = new MonteCarloSecondVariant();
+        MonteCarloSecondStrategy variant2 = new MonteCarloSecondStrategy();
         variant2.runMonteCarlo(this.countReplications, this.countDoors);
         double[] data = variant2.getSemiResults();
         for (i = 0; i < data.length; i++) {
@@ -140,6 +143,7 @@ public class App extends javax.swing.JFrame {
         jButtonAllVariants = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Televízna relácia");
         setPreferredSize(new java.awt.Dimension(1200, 600));
 
         mainChartPanel.setBackground(new java.awt.Color(102, 102, 102));
@@ -233,17 +237,70 @@ public class App extends javax.swing.JFrame {
     private void JButtonVariant1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JButtonVariant1ActionPerformed
 
         setInputValues();
+        //
+        //        this.dataseries.removeAllSeries();
+        //        this.dataseries.addSeries(createSeries1());
+        //
+        //        final XYDataset dataset = this.dataseries;
+        //        final JFreeChart chart = createChart(dataset);
+        //        final ChartPanel chartPanel = new ChartPanel(chart);
+        //        mainChartPanel.removeAll();
+        //        mainChartPanel.add(chartPanel);
+        //        mainChartPanel.revalidate();
 
-        this.dataseries.removeAllSeries();
-        this.dataseries.addSeries(createSeries1());
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        this.series1 = new XYSeries("Stratégia 1");
+        this.series2 = new XYSeries("Stratégia 2");
+        dataset.addSeries(this.series1);
+        dataset.addSeries(this.series2);
+        JFreeChart chart = ChartFactory.createXYLineChart("Štatistika výhier", "Počet replikácií", "Pravdepodobnosť výhry", dataset,
+                PlotOrientation.VERTICAL, true, true, false);
+        XYPlot plot = (XYPlot) chart.getPlot();
+//        plot.getRangeAxis().setRange(0, 1);
+        plot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        
+        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+        renderer.setSeriesShapesVisible(0, false);
 
-        final XYDataset dataset = this.dataseries;
-        final JFreeChart chart = createChart(dataset);
-        final ChartPanel chartPanel = new ChartPanel(chart);
         mainChartPanel.removeAll();
-        mainChartPanel.add(chartPanel);
+        mainChartPanel.add(new ChartPanel(chart));
         mainChartPanel.revalidate();
+
+        Thread t1 = new RunStrategy1();
+        t1.start();
+
+        Thread t2 = new RunStrategy2();
+        t2.start();
+
     }//GEN-LAST:event_JButtonVariant1ActionPerformed
+
+    public void addReplicaStrategy1(Number iteration, Number value) {
+        series1.add(iteration, value);
+    }
+
+    public void addReplicaStrategy2(Number iteration, Number value) {
+        series2.add(iteration, value);
+    }
+
+    private class RunStrategy1 extends Thread {
+
+        @Override
+        public void run() {
+            MonteCarloFirstStrategy strategy1 = new MonteCarloFirstStrategy();
+            strategy1.runMonteCarlo(countReplications, countDoors);
+        }
+
+    }
+
+    private class RunStrategy2 extends Thread {
+
+        @Override
+        public void run() {
+            MonteCarloSecondStrategy strategy2 = new MonteCarloSecondStrategy();
+            strategy2.runMonteCarlo(countReplications, countDoors);
+        }
+
+    }
 
     private void jButtonVariant2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonVariant2ActionPerformed
 
@@ -291,16 +348,24 @@ public class App extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(App.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(App.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(App.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(App.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 

@@ -17,5 +17,13 @@ public final class AppOutput {
     public static void setApp(App pApp) {
         app = pApp;
     }
+    
+    public static void addReplicaStrategy1(Number iteration, Number value) {
+        app.addReplicaStrategy1(iteration, value);
+    }
+    
+    public static void addReplicaStrategy2(Number iteration, Number value) {
+        app.addReplicaStrategy2(iteration, value);
+    }
 
 }

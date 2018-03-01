@@ -7,12 +7,13 @@ package uniza.diss.one.impl;
 
 import java.util.Random;
 import uniza.diss.one.base.MonteCarlo;
+import uniza.diss.one.utils.AppOutput;
 
 /**
  *
  * @author mariokemen
  */
-public class MonteCarloSecondVariant extends MonteCarlo {
+public class MonteCarloSecondStrategy extends MonteCarlo {
 
     private double[] semiResults;
     
@@ -39,8 +40,9 @@ public class MonteCarloSecondVariant extends MonteCarlo {
             if(pick == winDoor) {
                 countWins++;
             }
-            if (countWins != 0) {
-                semiResults[i] = (double) countWins / (i + 1);
+            if (i > countReplications * 0.005 && i % 100 == 0) {
+//                semiResults[i] = (double) countWins / (i + 1);
+                AppOutput.addReplicaStrategy2(i, (double) countWins / (i + 1));
             }
         }
 

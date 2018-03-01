@@ -1,13 +1,16 @@
+package uniza.diss.one.tests;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package uniza.diss.one.app;
 
+
+import uniza.diss.one.app.*;
 import java.util.Random;
-import uniza.diss.one.impl.MonteCarloFirstVariant;
-import uniza.diss.one.impl.MonteCarloSecondVariant;
+import uniza.diss.one.impl.MonteCarloFirstStrategy;
+import uniza.diss.one.impl.MonteCarloSecondStrategy;
 
 /**
  *
@@ -15,12 +18,12 @@ import uniza.diss.one.impl.MonteCarloSecondVariant;
  */
 public class test {
     
-    public static void main2(final String[] args) {
+    public static void main(final String[] args) {
         
-        MonteCarloFirstVariant v1 = new MonteCarloFirstVariant();
+        MonteCarloFirstStrategy v1 = new MonteCarloFirstStrategy();
         System.out.println(v1.runMonteCarlo(1000000, 3));
         
-        MonteCarloSecondVariant v2 = new MonteCarloSecondVariant();
+        MonteCarloSecondStrategy v2 = new MonteCarloSecondStrategy();
         System.out.println(v2.runMonteCarlo(1000000, 3));
         
     }
