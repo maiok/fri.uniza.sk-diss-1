@@ -5,123 +5,114 @@
  */
 package uniza.diss.one.app;
 
-import java.awt.Color;
+import static com.sun.corba.se.impl.util.Utility.printStackTrace;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import javax.swing.text.NumberFormatter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.axis.TickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 import uniza.diss.one.impl.MonteCarloFirstStrategy;
 import uniza.diss.one.impl.MonteCarloSecondStrategy;
 import uniza.diss.one.utils.AppOutput;
 
 /**
+ * Hlavne GUI aplikacie
  *
  * @author mariokemen
  */
 public class App extends javax.swing.JFrame {
 
-    private XYSeriesCollection dataseries;
+    private XYSeriesCollection dataset;
     private int countReplications;
     private int countDoors;
 
     private XYSeries series1;
     private XYSeries series2;
 
+    private Thread simulationThread1;
+    private Thread simulationThread2;
+
     /**
      * Creates new form App
      */
     public App() {
         initComponents();
-        initInstances();
-    }
-
-    private void initInstances() {
+        
         AppOutput.setApp(this);
-        this.dataseries = new XYSeriesCollection();
+        this.dataset = new XYSeriesCollection();
+        createChart();
     }
 
-    private JFreeChart createChart(final XYDataset dataset) {
+    /**
+     * Vytvorenie zakladnej komponenty grafu
+     *
+     * @return JFreeChart graf
+     */
+    private void createChart() {
 
-        // create the chart...
-        final JFreeChart chart = ChartFactory.createXYLineChart(
-                "Televízna relácia", // chart title
-                "Počet replikácií", // x axis label
-                "Pravdepodobnosť výhry", // y axis label
-                dataset, // data
-                PlotOrientation.VERTICAL,
-                true, // include legend
-                true, // tooltips
-                false // urls
-        );
+        JFreeChart chart = ChartFactory.createXYLineChart("Štatistika výhier", "Počet replikácií", "Pravdepodobnosť výhry", this.dataset,
+                PlotOrientation.VERTICAL, true, true, false);
+        
+        final NumberAxis yAxis = new NumberAxis();
+        yAxis.setAutoRangeIncludesZero(false); // nefixovat na nulu
+        yAxis.setAutoRange(true); // auto scale osi Y
+        yAxis.setAttributedLabel("Pravdepodobnosť výhry");
 
-        // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
-        chart.setBackgroundPaint(Color.white);
+        XYPlot plot = (XYPlot) chart.getPlot();
+        plot.setRangeAxis(yAxis); // nastavit os Y
+        plot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits()); // nastavit jednotky osi X
 
-//        final StandardLegend legend = (StandardLegend) chart.getLegend();
-        //      legend.setDisplaySeriesShapes(true);
-        // get a reference to the plot for further customisation...
-        final XYPlot plot = chart.getXYPlot();
-        plot.setBackgroundPaint(Color.lightGray);
-        //    plot.setAxisOffset(new Spacer(Spacer.ABSOLUTE, 5.0, 5.0, 5.0, 5.0));
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setRangeGridlinePaint(Color.white);
-
-        final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-        renderer.setSeriesShapesVisible(0, false);
-        renderer.setSeriesShapesVisible(1, false);
-        plot.setRenderer(renderer);
-
-        // change the auto tick unit selection to integer units only...
-//        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-//        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        // OPTIONAL CUSTOMISATION COMPLETED.
-        return chart;
-
+        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+        renderer.setSeriesShapesVisible(0, false); // Pri zmene hodnoty mi urob stvorcek
+        
+        mainChartPanel.removeAll();
+        mainChartPanel.add(new ChartPanel(chart));
+        mainChartPanel.revalidate();
     }
 
+    /**
+     * Iniciuje XY seriu pre prvu strategiu
+     *
+     * @return
+     */
     private XYSeries createSeries1() {
-
-        int i;
-        final XYSeries series = new XYSeries("Prvá varianta");
-
-//        MonteCarloFirstVariant variant1 = new MonteCarloFirstVariant();
-//        variant1.runMonteCarlo(this.countReplications, this.countDoors);
-//        double[] data = variant1.getSemiResults();
-//        for (i = 0; i < data.length; i++) {
-//            series.add(i, data[i]);
-//        }
-        return series;
-
+        this.series1 = new XYSeries("Prvá stratégia");
+        return series1;
     }
 
+    /**
+     * Iniciuje XY seriu pre druhu strategiu
+     *
+     * @return
+     */
     private XYSeries createSeries2() {
-
-        int i;
-        final XYSeries series = new XYSeries("Druhá varianta");
-
-        MonteCarloSecondStrategy variant2 = new MonteCarloSecondStrategy();
-        variant2.runMonteCarlo(this.countReplications, this.countDoors);
-        double[] data = variant2.getSemiResults();
-        for (i = 0; i < data.length; i++) {
-            series.add(i, data[i]);
-        }
-        return series;
-
+        series2 = new XYSeries("Druhá stratégia");
+        return series2;
     }
 
+    /**
+     * Praca zo vstupmi, nacitanie hodnot do simulacie
+     */
     private void setInputValues() {
+        jTextFieldValueStrategy1.setText("");
+        jTextFieldValueStrategy2.setText("");
         try {
             this.countReplications = Integer.parseInt(jTextFieldCountReplications.getText());
             this.countDoors = Integer.parseInt(jTextFieldCountDoors.getText());
         } catch (NumberFormatException nfe) {
             System.out.println("Chyba na vstupe");
         }
+        jButtonStop.setEnabled(true);
     }
 
     /**
@@ -138,9 +129,14 @@ public class App extends javax.swing.JFrame {
         jTextFieldCountReplications = new javax.swing.JTextField();
         jTextFieldCountDoors = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        JButtonVariant1 = new javax.swing.JButton();
-        jButtonVariant2 = new javax.swing.JButton();
-        jButtonAllVariants = new javax.swing.JButton();
+        JButtonStrategy1 = new javax.swing.JButton();
+        jButtonStrategy2 = new javax.swing.JButton();
+        jButtonAllStrategies = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jTextFieldValueStrategy1 = new javax.swing.JTextField();
+        jTextFieldValueStrategy2 = new javax.swing.JTextField();
+        jButtonStop = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Televízna relácia");
@@ -162,24 +158,36 @@ public class App extends javax.swing.JFrame {
 
         jLabel2.setText("Počet dverí");
 
-        JButtonVariant1.setText("Štart varianty 1");
-        JButtonVariant1.addActionListener(new java.awt.event.ActionListener() {
+        JButtonStrategy1.setText("Štart varianty 1");
+        JButtonStrategy1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                JButtonVariant1ActionPerformed(evt);
+                JButtonStrategy1ActionPerformed(evt);
             }
         });
 
-        jButtonVariant2.setText("Štart varianty 2");
-        jButtonVariant2.addActionListener(new java.awt.event.ActionListener() {
+        jButtonStrategy2.setText("Štart varianty 2");
+        jButtonStrategy2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonVariant2ActionPerformed(evt);
+                jButtonStrategy2ActionPerformed(evt);
             }
         });
 
-        jButtonAllVariants.setText("Štart oboch variánt");
-        jButtonAllVariants.addActionListener(new java.awt.event.ActionListener() {
+        jButtonAllStrategies.setText("Štart oboch variánt");
+        jButtonAllStrategies.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonAllVariantsActionPerformed(evt);
+                jButtonAllStrategiesActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("Hodnoty stratégie 1");
+
+        jLabel4.setText("Hodnoty stratégie 2");
+
+        jButtonStop.setText("Stop");
+        jButtonStop.setEnabled(false);
+        jButtonStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonStopActionPerformed(evt);
             }
         });
 
@@ -190,7 +198,7 @@ public class App extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(mainChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 822, Short.MAX_VALUE)
+                    .addComponent(mainChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 1074, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel1)
@@ -200,12 +208,23 @@ public class App extends javax.swing.JFrame {
                             .addComponent(jTextFieldCountDoors)
                             .addComponent(jTextFieldCountReplications, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
-                        .addComponent(JButtonVariant1)
+                        .addComponent(JButtonStrategy1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonVariant2)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jButtonStop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButtonStrategy2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonAllVariants)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(jButtonAllStrategies)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextFieldValueStrategy2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextFieldValueStrategy1, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -214,16 +233,23 @@ public class App extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextFieldCountReplications, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldCountReplications, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(jTextFieldValueStrategy1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(JButtonStrategy1)
+                    .addComponent(jButtonStrategy2)
+                    .addComponent(jButtonAllStrategies))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextFieldCountDoors, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(JButtonVariant1)
-                    .addComponent(jButtonVariant2)
-                    .addComponent(jButtonAllVariants))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jTextFieldCountDoors, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel2)
+                        .addComponent(jButtonStop))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel4)
+                        .addComponent(jTextFieldValueStrategy2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mainChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 459, Short.MAX_VALUE)
+                .addComponent(mainChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -234,54 +260,60 @@ public class App extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldCountReplicationsActionPerformed
 
-    private void JButtonVariant1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JButtonVariant1ActionPerformed
+    /**
+     * Tlacidlo pre spustenie simulacie so strategiou 1
+     *
+     * @param evt
+     */
+    private void JButtonStrategy1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JButtonStrategy1ActionPerformed
 
         setInputValues();
-        //
-        //        this.dataseries.removeAllSeries();
-        //        this.dataseries.addSeries(createSeries1());
-        //
-        //        final XYDataset dataset = this.dataseries;
-        //        final JFreeChart chart = createChart(dataset);
-        //        final ChartPanel chartPanel = new ChartPanel(chart);
-        //        mainChartPanel.removeAll();
-        //        mainChartPanel.add(chartPanel);
-        //        mainChartPanel.revalidate();
 
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        this.series1 = new XYSeries("Stratégia 1");
-        this.series2 = new XYSeries("Stratégia 2");
-        dataset.addSeries(this.series1);
-        dataset.addSeries(this.series2);
-        JFreeChart chart = ChartFactory.createXYLineChart("Štatistika výhier", "Počet replikácií", "Pravdepodobnosť výhry", dataset,
-                PlotOrientation.VERTICAL, true, true, false);
-        XYPlot plot = (XYPlot) chart.getPlot();
-//        plot.getRangeAxis().setRange(0, 1);
-        plot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        
-        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
-        renderer.setSeriesShapesVisible(0, false);
+        this.dataset.removeAllSeries();
+        this.dataset.addSeries(createSeries1());
 
-        mainChartPanel.removeAll();
-        mainChartPanel.add(new ChartPanel(chart));
-        mainChartPanel.revalidate();
+        this.simulationThread1 = new RunStrategy1();
+        this.simulationThread1.start();
 
-        Thread t1 = new RunStrategy1();
-        t1.start();
+    }//GEN-LAST:event_JButtonStrategy1ActionPerformed
 
-        Thread t2 = new RunStrategy2();
-        t2.start();
-
-    }//GEN-LAST:event_JButtonVariant1ActionPerformed
-
-    public void addReplicaStrategy1(Number iteration, Number value) {
-        series1.add(iteration, value);
+    /**
+     * Prida hodnotu replikacie strategie 1 do grafu
+     *
+     * @param x
+     * @param y
+     */
+    public void addReplicaStrategy1(int x, double y) {
+        if (isStrategy1Alive()) {
+            try {
+                series1.add(x, y);
+                jTextFieldValueStrategy1.setText("" + y);
+            } catch (Exception e) {
+                printStackTrace();
+            }
+        }
     }
 
-    public void addReplicaStrategy2(Number iteration, Number value) {
-        series2.add(iteration, value);
+    /**
+     * Prida hodnotu replikacie strategie 1 do grafu
+     *
+     * @param x
+     * @param y
+     */
+    public void addReplicaStrategy2(double x, double y) {
+        if (isStrategy2Alive()) {
+            try {
+                series2.add(x, y);
+                jTextFieldValueStrategy2.setText("" + y);
+            } catch (Exception e) {
+                printStackTrace();
+            }
+        }
     }
 
+    /**
+     * Trieda, v ktorej sa spusti nove vlakno so simulaciou strategie 1
+     */
     private class RunStrategy1 extends Thread {
 
         @Override
@@ -292,6 +324,9 @@ public class App extends javax.swing.JFrame {
 
     }
 
+    /**
+     * Trieda, v ktorej sa spusti nove vlakno so simulaciou strategie 2
+     */
     private class RunStrategy2 extends Thread {
 
         @Override
@@ -302,37 +337,60 @@ public class App extends javax.swing.JFrame {
 
     }
 
-    private void jButtonVariant2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonVariant2ActionPerformed
+    /**
+     * Tlacidlo pre spustenie simulacie so strategiou 2
+     *
+     * @param evt
+     */
+    private void jButtonStrategy2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStrategy2ActionPerformed
 
         setInputValues();
 
-        this.dataseries.removeAllSeries();
-        this.dataseries.addSeries(createSeries2());
+        this.dataset.removeAllSeries();
+        this.dataset.addSeries(createSeries2());
 
-        final XYDataset dataset = this.dataseries;
-        final JFreeChart chart = createChart(dataset);
-        final ChartPanel chartPanel = new ChartPanel(chart);
-        mainChartPanel.removeAll();
-        mainChartPanel.add(chartPanel);
-        mainChartPanel.revalidate();
-    }//GEN-LAST:event_jButtonVariant2ActionPerformed
+        this.simulationThread2 = new RunStrategy2();
+        this.simulationThread2.start();
 
-    private void jButtonAllVariantsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAllVariantsActionPerformed
+    }//GEN-LAST:event_jButtonStrategy2ActionPerformed
+
+    private void jButtonAllStrategiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAllStrategiesActionPerformed
 
         setInputValues();
 
-        this.dataseries.removeAllSeries();
-        this.dataseries.addSeries(createSeries1());
-        this.dataseries.addSeries(createSeries2());
+        // Naplnenie datasetu dvoch hodnot
+        this.dataset.removeAllSeries();
+        this.dataset.addSeries(createSeries1());
+        this.dataset.addSeries(createSeries2());
 
-        final XYDataset dataset = this.dataseries;
-        final JFreeChart chart = createChart(dataset);
-        final ChartPanel chartPanel = new ChartPanel(chart);
-        mainChartPanel.removeAll();
-        mainChartPanel.add(chartPanel);
-        mainChartPanel.revalidate();
+        // Spustenie vlakien
+        this.simulationThread1 = new RunStrategy1();
+        this.simulationThread1.start();
 
-    }//GEN-LAST:event_jButtonAllVariantsActionPerformed
+        this.simulationThread2 = new RunStrategy2();
+        this.simulationThread2.start();
+
+    }//GEN-LAST:event_jButtonAllStrategiesActionPerformed
+
+    private void jButtonStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStopActionPerformed
+
+        if (isStrategy1Alive()) {
+            simulationThread1.stop();
+        }
+
+        if (isStrategy2Alive()) {
+            simulationThread2.stop();
+        }
+
+    }//GEN-LAST:event_jButtonStopActionPerformed
+
+    private boolean isStrategy1Alive() {
+        return simulationThread1 != null && simulationThread1.isAlive();
+    }
+
+    private boolean isStrategy2Alive() {
+        return simulationThread2 != null && simulationThread2.isAlive();
+    }
 
     /**
      * @param args the command line arguments
@@ -378,13 +436,18 @@ public class App extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton JButtonVariant1;
-    private javax.swing.JButton jButtonAllVariants;
-    private javax.swing.JButton jButtonVariant2;
+    private javax.swing.JButton JButtonStrategy1;
+    private javax.swing.JButton jButtonAllStrategies;
+    private javax.swing.JButton jButtonStop;
+    private javax.swing.JButton jButtonStrategy2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JTextField jTextFieldCountDoors;
     private javax.swing.JTextField jTextFieldCountReplications;
+    private javax.swing.JTextField jTextFieldValueStrategy1;
+    private javax.swing.JTextField jTextFieldValueStrategy2;
     private javax.swing.JPanel mainChartPanel;
     // End of variables declaration//GEN-END:variables
 }

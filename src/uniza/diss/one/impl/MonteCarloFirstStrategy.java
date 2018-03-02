@@ -10,43 +10,46 @@ import uniza.diss.one.base.MonteCarlo;
 import uniza.diss.one.utils.AppOutput;
 
 /**
- *
+ * Trieda implementujuca metodu monte carlo strategie 1, cize ked sutiazaci
+ * nezmeni svoj povodny nazor
+ * 
  * @author mariokemen
  */
 public class MonteCarloFirstStrategy extends MonteCarlo {
 
-    private double[] semiResults;
-
     @Override
     public double runMonteCarlo(int countReplications, int countDoors) {
 
-        this.semiResults = new double[countReplications];
-        Random rnd1 = new Random();
-        Random rnd2 = new Random();
+        Random seed = new Random(); // generator pre nasady do simulacie
+        
+        // Poznamka1: Random bez parametra dava nasadu systemoveho casu
+        // co vedie niekedy k nekvalitnemu generatu pokial mam tieto generatory
+        // hned za sebou, preto je lepsie vytvorit jeden generator ako nasadu
+        // pre tie dalsie
+        
+        // Poznamka2: V pripade, ze by som chcel dobre ladit program, ked tusim
+        // ze nejaky generator je problemovy, tak mu dam konstantnu nasadu
+        // a tym padom bude generovat stale tie iste cisla
+        
+        
+        Random rnd1 = new Random(seed.nextInt()); // generator pre jav urcenia vyhernych dveri
+        Random rnd2 = new Random(seed.nextInt()); // - // - urcenia dveri sutiaziacim
 
         int i;
         int countWins = 0;
-        int winDoor;
-        int pick;
 
         for (i = 0; i < countReplications; i++) {
-            winDoor = rnd1.nextInt(countDoors);
-            pick = rnd2.nextInt(countDoors);
-            if (pick == winDoor) {
+            // Vyhral?
+            if (rnd2.nextInt(countDoors) == rnd1.nextInt(countDoors)) {
                 countWins++;
             }
-            // Prvych 0.5% vynecham kvoli zahrievaniu
-            if (i > countReplications * 0.005 && i % 100 == 0) {
-//                semiResults[i] = (double) countWins / (i + 1);
+            // Prvych 30% vynecham kvoli zahrievaniu
+            if (i > countReplications * 0.3 && i % 100 == 0) {
                 AppOutput.addReplicaStrategy1(i, (double) countWins / (i + 1));
             }
         }
 
         return (double) countWins / countReplications;
-    }
-
-    public double[] getSemiResults() {
-        return this.semiResults;
     }
 
 }

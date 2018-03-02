@@ -20,11 +20,14 @@ public class test {
     
     public static void main(final String[] args) {
         
-        MonteCarloFirstStrategy v1 = new MonteCarloFirstStrategy();
-        System.out.println(v1.runMonteCarlo(1000000, 3));
-        
-        MonteCarloSecondStrategy v2 = new MonteCarloSecondStrategy();
-        System.out.println(v2.runMonteCarlo(1000000, 3));
+//        MonteCarloFirstStrategy v1 = new MonteCarloFirstStrategy();
+//        System.out.println(v1.runMonteCarlo(1000000, 3));
+//        
+//        MonteCarloSecondStrategy v2 = new MonteCarloSecondStrategy();
+//        System.out.println(v2.runMonteCarlo(1000000, 3));
+
+        Random rnd = new Random();
+        System.out.println(rnd.nextInt());
         
     }
     

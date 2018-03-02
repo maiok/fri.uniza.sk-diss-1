@@ -6,7 +6,8 @@
 package uniza.diss.one.base;
 
 /**
- *
+ * Abstratna trieda, ktora ma len jednu metodu runMonteCarlo
+ * 
  * @author mariokemen
  */
 public abstract class MonteCarlo {

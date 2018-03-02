@@ -8,6 +8,9 @@ package uniza.diss.one.utils;
 import uniza.diss.one.app.App;
 
 /**
+ * Trieda, ktora tvori komunikacnu vrstvu medzi biznis logikou aplikacie
+ * a uzivatelskym rozhranim
+ * 
  * @author mariokemen
  */
 public final class AppOutput {
@@ -18,12 +21,24 @@ public final class AppOutput {
         app = pApp;
     }
     
-    public static void addReplicaStrategy1(Number iteration, Number value) {
-        app.addReplicaStrategy1(iteration, value);
+    /**
+     * Pridanie jednej repliky strategie 1 do grafu.
+     * 
+     * @param x
+     * @param y 
+     */
+    public static void addReplicaStrategy1(int x, double y) {
+        app.addReplicaStrategy1(x, y);
     }
     
-    public static void addReplicaStrategy2(Number iteration, Number value) {
-        app.addReplicaStrategy2(iteration, value);
+    /**
+     * Pridanie jednej repliky strategie 2 do grafu.
+     * 
+     * @param x
+     * @param y 
+     */
+    public static void addReplicaStrategy2(int x, double y) {
+        app.addReplicaStrategy2(x, y);
     }
 
 }
