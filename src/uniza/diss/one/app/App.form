@@ -30,7 +30,7 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="mainChartPanel" alignment="0" pref="1074" max="32767" attributes="0"/>
+                  <Component id="mainChartPanel" alignment="0" pref="1081" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
@@ -136,7 +136,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="JButtonStrategy1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&#x160;tart varianty 1"/>
+        <Property name="text" type="java.lang.String" value="&#x160;tart strat&#xe9;gie 1"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="JButtonStrategy1ActionPerformed"/>
@@ -144,7 +144,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="jButtonStrategy2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&#x160;tart varianty 2"/>
+        <Property name="text" type="java.lang.String" value="&#x160;tart strat&#xe9;gie 2"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonStrategy2ActionPerformed"/>
@@ -152,7 +152,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="jButtonAllStrategies">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&#x160;tart oboch vari&#xe1;nt"/>
+        <Property name="text" type="java.lang.String" value="&#x160;tart oboch strat&#xe9;gi&#xed;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonAllStrategiesActionPerformed"/>
@@ -169,8 +169,14 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldValueStrategy1">
+      <Properties>
+        <Property name="editable" type="boolean" value="false"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldValueStrategy2">
+      <Properties>
+        <Property name="editable" type="boolean" value="false"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonStop">
       <Properties>

@@ -6,21 +6,15 @@
 package uniza.diss.one.app;
 
 import static com.sun.corba.se.impl.util.Utility.printStackTrace;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import javax.swing.text.NumberFormatter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.axis.TickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.RectangleInsets;
 import uniza.diss.one.impl.MonteCarloFirstStrategy;
 import uniza.diss.one.impl.MonteCarloSecondStrategy;
 import uniza.diss.one.utils.AppOutput;
@@ -47,6 +41,8 @@ public class App extends javax.swing.JFrame {
      */
     public App() {
         initComponents();
+        setLocationRelativeTo(null); // centrovanie okna
+        
         
         AppOutput.setApp(this);
         this.dataset = new XYSeriesCollection();
@@ -158,21 +154,21 @@ public class App extends javax.swing.JFrame {
 
         jLabel2.setText("Počet dverí");
 
-        JButtonStrategy1.setText("Štart varianty 1");
+        JButtonStrategy1.setText("Štart stratégie 1");
         JButtonStrategy1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 JButtonStrategy1ActionPerformed(evt);
             }
         });
 
-        jButtonStrategy2.setText("Štart varianty 2");
+        jButtonStrategy2.setText("Štart stratégie 2");
         jButtonStrategy2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonStrategy2ActionPerformed(evt);
             }
         });
 
-        jButtonAllStrategies.setText("Štart oboch variánt");
+        jButtonAllStrategies.setText("Štart oboch stratégií");
         jButtonAllStrategies.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonAllStrategiesActionPerformed(evt);
@@ -182,6 +178,10 @@ public class App extends javax.swing.JFrame {
         jLabel3.setText("Hodnoty stratégie 1");
 
         jLabel4.setText("Hodnoty stratégie 2");
+
+        jTextFieldValueStrategy1.setEditable(false);
+
+        jTextFieldValueStrategy2.setEditable(false);
 
         jButtonStop.setText("Stop");
         jButtonStop.setEnabled(false);
@@ -198,7 +198,7 @@ public class App extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(mainChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 1074, Short.MAX_VALUE)
+                    .addComponent(mainChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 1081, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel1)

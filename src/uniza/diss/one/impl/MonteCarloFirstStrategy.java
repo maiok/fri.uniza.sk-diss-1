@@ -18,7 +18,7 @@ import uniza.diss.one.utils.AppOutput;
 public class MonteCarloFirstStrategy extends MonteCarlo {
 
     @Override
-    public double runMonteCarlo(int countReplications, int countDoors) {
+    public double runMonteCarlo(int countReplications, int countDoors)  {
 
         Random seed = new Random(); // generator pre nasady do simulacie
         
