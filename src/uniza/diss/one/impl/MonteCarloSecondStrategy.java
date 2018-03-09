@@ -72,12 +72,9 @@ public class MonteCarloSecondStrategy extends MonteCarlo {
         // Triedu Random pouzijem iba raz, dalej v cykle hladam najblizsie volne
         // dvere, teda tak aby som hodnotu nezahadzoval
         int door = rnd.nextInt(bound);
-        while (true) {
-            // Podmienka aby moderator neotvoril vitazne dvere a tie, ktore
-            // si vybral sutaziaci
-            if (door != winDoor && door != pick) {
-                break;
-            }
+        // Podmienka aby moderator neotvoril vitazne dvere a tie, ktore
+        // si vybral sutaziaci
+        while (door == winDoor || door == pick) {
             // Pokial som narazil nejake vybrate dvere niekym, tak mi dalej v poradi
             // hladaj dalsie volne
             door++;
@@ -101,10 +98,7 @@ public class MonteCarloSecondStrategy extends MonteCarlo {
     private int getChangeMyMind(int pick, int pickModerator, Random rnd, int bound) {
 
         int door = rnd.nextInt(bound);
-        while (true) {
-            if (door != pick && door != pickModerator) {
-                break;
-            }
+        while (door == pick || door == pickModerator) {
             door++;
             door %= bound;
         }
